@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wikipedia Search</title>
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 20px;
+        }
+
+        input[type="text"] {
+            width: 70%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #searchResults {
+            margin-top: 20px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Wikipedia Search</h1>
+        <input type="text" id="searchInput" placeholder="Enter search term...">
+        <button id="searchButton">Search</button>
+        <div id="searchResults"></div>
+    </div>
+
+    <script>
+        document.getElementById('searchButton').addEventListener('click', searchWikipedia);
+
+        function searchWikipedia() {
+            const searchInput = document.getElementById('searchInput').value;
+            const url = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${searchInput}&format=json&origin=*`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    displaySearchResults(data);
+                })
+                .catch(error => console.error('Error fetching Wikipedia search results:', error));
+        }
+
+        function displaySearchResults(data) {
+            const searchResultsDiv = document.getElementById('searchResults');
+            searchResultsDiv.innerHTML = '';
+
+            const titles = data[1];
+            const descriptions = data[2];
+            const links = data[3];
+
+            if (titles.length === 0) {
+                searchResultsDiv.innerHTML = '<p>No results found.</p>';
+            } else {
+                for (let i = 0; i < titles.length; i++) {
+                    const title = titles[i];
+                    const description = descriptions[i];
+                    const link = links[i];
+
+                    const resultDiv = document.createElement('div');
+                    resultDiv.innerHTML = `<h3><a href="${link}" target="_blank">${title}</a></h3><p>${description}</p>`;
+                    searchResultsDiv.appendChild(resultDiv);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
